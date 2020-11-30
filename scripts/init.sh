@@ -1,13 +1,14 @@
 #!/bin/bash
 
-log() {
-  TS=$(date +%s)
-  printf '{"ts":"%i","level":"info","msg":"%s"}\n' "${TS}" "${*}"
-}
+. ./generic.inc
 
-log "Starting lighthttpd..."
+log "Starting lighthttpd"
 lighttpd -f /app/lighttpd.conf
-log "Starting tests..."
-cd  /app
-./run_test.sh
+cd /app
+echo "* * * * * /app/create_html.sh" > /app/crontab
+supercronic -json /app/crontab &
+log "Setting up Tests"
+./setup.sh
+sleep 600000
+#./run_test.sh
 exit $?
